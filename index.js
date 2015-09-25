@@ -1,6 +1,7 @@
 var retrieveArguments = require('retrieve-arguments'),
     startsWith = require('lodash.startswith'),
     includes = require('lodash.includes'),
+    camelCase = require('lodash.camelcase'),
     me = {};
 
 me = function(gulp, processArgv) {
@@ -51,7 +52,7 @@ me.getInjections = function(fnArgs, keys) {
 
     if (includesKey(keys, key) || includesShort(keys, key[0])) {
       if (includesKey(keys, key)) {
-        index = keys.indexOf('--' + key);
+        index = keys.map(function(k) { return k.indexOf('--') == 0? camelCase(k): k}).indexOf(key);
       } else {
         index =  keys.indexOf('-' + key[0]);
       }
@@ -69,7 +70,10 @@ me.getInjections = function(fnArgs, keys) {
 };
 
 function includesKey(keys, key) {
-  return includes(keys, '--' + key);
+  keys = keys.map(function(k, i, l) {
+    return k.indexOf('--') == 0? camelCase(k): k;
+  });
+  return includes(keys, key);
 }
 
 function includesShort(keys, key) {

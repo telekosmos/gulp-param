@@ -31,6 +31,19 @@ describe('gulp-param', function() {
       assert.deepEqual(gulpParam.getInjections(['flag'], ['--flag']), [true]);
       assert.deepEqual(gulpParam.getInjections(['param', 'flag'], ['--param', 'test', '--flag']), ['test', true]);
     });
+
+    it('should support short paramters as well', function() {
+      assert.deepEqual(gulpParam.getInjections(['flag'], ['-f']), [true]);
+      assert.deepEqual(gulpParam.getInjections(['param', 'flag'], ['-p', 'test', '-f']), ['test', true]);
+    });
+
+    it('should support standard unix arguments format: --a-param', function() {
+      assert.deepEqual(gulpParam.getInjections(['paramOne', 'flag'], ['--param-one', 'test', '--flag']), ['test', true]);
+    });
+
+    it('should support variations on unix arguments: --a_param, --a.param', function () {
+      assert.deepEqual(gulpParam.getInjections(['paramOne', 'flag'], ['--param-one', 'test', '--flag']), ['test', true]);
+    });
   });
 
   describe('#task', function() {
@@ -62,6 +75,23 @@ describe('gulp-param', function() {
       gulp.argv = ['', '', ''];
       gulp.task('test', function(param) {
         assert.equal(param, null);
+        done();
+      });
+    });
+
+    it('should support unix arguments standard format like --an-argument', function(done) {
+      gulp.argv = ['', '', '', '--an_argument', 'argument'];
+      gulp.task('test', function(anArgument) {
+        assert.equal(anArgument, 'argument');
+        done();
+      });
+    });
+
+    it('should support variations on unix standard arguments format', function(done) {
+      gulp.argv = ['', '', '', '--an_argument', 'argument', '--an-other_arg'];
+      gulp.task('test', function(anArgument, anOtherArg) {
+        assert.equal(anArgument, 'argument');
+        assert.equal(anOtherArg, true);
         done();
       });
     });
